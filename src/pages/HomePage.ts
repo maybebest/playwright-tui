@@ -13,7 +13,7 @@ export class HomePage {
     return this.page.locator(".dropModalScope_airports");
   }
   private get airportBoxes() {
-    return this.airportsPanel.locator(".SelectAirports__parentGroup .inputs__box");
+    return this.airportsPanel.locator(".SelectAirports__parentGroup .inputs__CheckboxTextAligned");
   }
   private get airportsApply() {
     return this.airportsPanel.locator(".DropModal__footerContainer .DropModal__apply");
@@ -84,8 +84,11 @@ export class HomePage {
   async selectRandomDepartureAirport() {
     await safeClick(this.airportInput);
     await expect(this.airportsPanel).toBeVisible();
-    await safeClick(this.airportBoxes);
+    const selectedBox = this.airportBoxes.first();
+    const airportText = await selectedBox.textContent().catch(() => "Unknown");
+    await safeClick(selectedBox);
     await safeClick(this.airportsApply);
+    console.log(`[BOOKING] Departure Airport: ${airportText?.trim() || "Unknown"}`);
   }
 
   async selectRandomDestinationAirport(rng: SeededRandom) {
@@ -95,10 +98,12 @@ export class HomePage {
     await expect.poll(() => this.destinationLinks.count(), { timeout: 20_000 }).toBeGreaterThan(0);
     const count = await this.destinationLinks.count();
     const picked = this.destinationLinks.nth(rng.pickIndex(count));
+    const destinationText = await picked.textContent().catch(() => "Unknown");
     await safeClick(picked);
 
     await safeClick(this.destinationParentCheckbox);
     await safeClick(this.destinationApply);
+    console.log(`[BOOKING] Destination: ${destinationText?.trim() || "Unknown"}`);
   }
 
   async selectFirstAvailableDepartureDate(rng: SeededRandom) {
@@ -107,8 +112,10 @@ export class HomePage {
     await expect.poll(() => this.availableDepartureDates.count(), { timeout: 15_000 }).toBeGreaterThan(0);
     const dateCount = await this.availableDepartureDates.count();
     const picked = this.availableDepartureDates.nth(rng.pickIndex(dateCount));
+    const dateLabel = await picked.getAttribute("aria-label").catch(() => null) ?? await picked.textContent().catch(() => "Unknown");
     await safeClick(picked);
     await safeClick(this.departureDateApply);
+    console.log(`[BOOKING] Departure Date: ${dateLabel?.trim() || "Unknown"}`);
   }
 
   async setRoomsGuestsTo2Adults1ChildRandomAge(rng: SeededRandom) {
@@ -126,11 +133,13 @@ export class HomePage {
       const value = (await opt.getAttribute("value").catch(() => null)) ?? "";
       if (!value) continue;
       const n = Number(value);
-      if (Number.isFinite(n) && n >= 0) validValues.push(value);
+      if (n >= 0) validValues.push(value);
     }
     if (validValues.length === 0) throw new Error("No valid child age options (value >= 0) found");
-    await this.childAgeSelect.selectOption(validValues[rng.pickIndex(validValues.length)]);
+    const selectedAge = validValues[rng.pickIndex(validValues.length)];
+    await this.childAgeSelect.selectOption(selectedAge);
     await safeClick(this.guestsApply);
+    console.log(`[BOOKING] Guests: 2 Adults, 1 Child (age ${selectedAge})`);
   }
 
   async searchHolidays() {
