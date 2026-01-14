@@ -1,0 +1,24 @@
+{
+  "scenarios": [
+    {
+      "name": "family_with_child",
+      "adults": 2,
+      "children": 1,
+      "childAgeRange": { "min": 0, "max": 17 },
+      "description": "Standard family booking with 2 adults and 1 child"
+    },
+    {
+      "name": "couple",
+      "adults": 2,
+      "children": 0,
+      "description": "Couple booking without children"
+    },
+    {
+      "name": "large_family",
+      "adults": 2,
+      "children": 3,
+      "childAgeRange": { "min": 2, "max": 15 },
+      "description": "Large family with multiple children"
+    }
+  ]
+}
