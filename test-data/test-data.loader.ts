@@ -6,7 +6,8 @@
  */
 
 import { readFileSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { BookingScenario, BookingScenariosData } from "../types/test-data.types";
 
 /**
@@ -14,7 +15,7 @@ import { BookingScenario, BookingScenariosData } from "../types/test-data.types"
  */
 export function loadBookingScenarios(): BookingScenariosData {
   try {
-    const dataPath = join(__dirname, "booking-scenarios.json");
+    const dataPath = join(dirname(fileURLToPath(import.meta.url)), "booking-scenarios.json");
     const rawData = readFileSync(dataPath, "utf-8");
     return JSON.parse(rawData) as BookingScenariosData;
   } catch (error) {
